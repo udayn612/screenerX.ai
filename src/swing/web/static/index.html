@@ -45,46 +45,45 @@
                             <p class="tagline">US and Indian Markets Stock Screener</p>
                         </div>
                     </div>
-                    <div class="header-actions">
-                        <div class="status-chip" id="statusBadge">
-                            <span class="pulse"></span>
-                            <span id="statusText">Ready</span>
-                        </div>
-                        <!-- Admin panel link: only shown for emails in ADMIN_EMAILS (server sets is_admin). -->
-                        <div class="auth-strip" id="authStrip" hidden>
-                            <div class="auth-strip__user">
+                    <div class="header-aside">
+                        <!-- User + admin + sign out: separate row from scan controls (see style.css). -->
+                        <div class="header-user-row" id="authStrip" hidden>
+                            <div class="auth-user-chip">
                                 <img id="authPic" class="auth-pic" alt="" width="28" height="28" hidden
                                     referrerpolicy="no-referrer">
-                                <span id="authEmail" class="auth-strip__name"></span>
+                                <span id="authEmail" class="auth-user-chip__name"></span>
                             </div>
-                            <span class="auth-strip__divider" aria-hidden="true"></span>
-                            <div class="auth-strip__actions">
-                                <a href="/admin" id="adminLink" class="auth-admin-pill" hidden>Admin panel</a>
-                                <a href="/auth/logout" class="auth-signout">Sign out</a>
-                            </div>
+                            <a href="/admin" id="adminLink" class="auth-admin-pill" hidden>Admin panel</a>
+                            <a href="/auth/logout" class="auth-signout">Sign out</a>
                         </div>
-                        <div class="control-group">
-                            <label class="visually-hidden" for="scanScope">Market</label>
-                            <select class="scope-select" id="scanScope">
-                                <optgroup label="India">
-                                    <option value="nifty_50">Nifty 50 · ~30s</option>
-                                    <option value="nifty_100">Nifty 100 · ~1 min</option>
-                                    <option value="nifty_200">Nifty 200 · ~2 min</option>
-                                    <option value="nifty_500" selected>Nifty 500 · ~5 min</option>
-                                </optgroup>
-                                <optgroup label="United States">
-                                    <option value="dow_30">Dow 30 · ~30s</option>
-                                    <option value="nasdaq_100">Nasdaq 100 · ~1 min</option>
-                                    <option value="sp_500">S&amp;P 500 · ~5 min</option>
-                                </optgroup>
-                            </select>
-                            <button type="button" class="btn-scan" id="btnScan" title="Shift+click forces a new Yahoo download (slower)" onclick="startScan(event)">
-                                <span class="btn-scan__glow" aria-hidden="true"></span>
-                                <span class="btn-icon" aria-hidden="true">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-                                </span>
-                                <span>Run scan</span>
-                            </button>
+                        <div class="header-toolbar">
+                            <div class="status-chip" id="statusBadge">
+                                <span class="pulse"></span>
+                                <span id="statusText">Ready</span>
+                            </div>
+                            <div class="control-group">
+                                <label class="visually-hidden" for="scanScope">Market</label>
+                                <select class="scope-select" id="scanScope">
+                                    <optgroup label="India">
+                                        <option value="nifty_50">Nifty 50 · ~30s</option>
+                                        <option value="nifty_100">Nifty 100 · ~1 min</option>
+                                        <option value="nifty_200">Nifty 200 · ~2 min</option>
+                                        <option value="nifty_500" selected>Nifty 500 · ~5 min</option>
+                                    </optgroup>
+                                    <optgroup label="United States">
+                                        <option value="dow_30">Dow 30 · ~30s</option>
+                                        <option value="nasdaq_100">Nasdaq 100 · ~1 min</option>
+                                        <option value="sp_500">S&amp;P 500 · ~5 min</option>
+                                    </optgroup>
+                                </select>
+                                <button type="button" class="btn-scan" id="btnScan" title="Shift+click forces a new Yahoo download (slower)" onclick="startScan(event)">
+                                    <span class="btn-scan__glow" aria-hidden="true"></span>
+                                    <span class="btn-icon" aria-hidden="true">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+                                    </span>
+                                    <span>Run scan</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

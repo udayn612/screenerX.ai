@@ -174,37 +174,39 @@ body {
     margin-top: 2px;
 }
 
-.header-actions {
+.header-aside {
     display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
     flex: 1;
     min-width: 0;
 }
 
-.auth-strip {
+.header-user-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px 14px;
+    width: 100%;
+    max-width: 100%;
+}
+
+.auth-user-chip {
     display: inline-flex;
     align-items: center;
-    flex-wrap: nowrap;
-    max-width: min(100%, 420px);
-    padding: 3px 3px 3px 5px;
+    gap: 8px;
+    min-width: 0;
+    max-width: min(100%, 260px);
+    padding: 4px 12px 4px 4px;
     background: var(--surface-1);
     border: 1px solid var(--border);
     border-radius: 999px;
     font-size: 0.8125rem;
 }
 
-.auth-strip__user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 0;
-    padding: 4px 6px 4px 4px;
-}
-
-.auth-strip .auth-pic {
+.auth-user-chip .auth-pic {
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -213,38 +215,64 @@ body {
     border: 1px solid var(--border-strong);
 }
 
-.auth-strip__name {
+.auth-user-chip__name {
     font-weight: 600;
     color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 160px;
+    min-width: 0;
 }
 
-.auth-strip__divider {
-    width: 1px;
-    height: 26px;
-    background: var(--border-strong);
-    flex-shrink: 0;
-    opacity: 0.85;
-}
-
-.auth-strip__actions {
+.header-toolbar {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 0 12px 0 4px;
-    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+}
+
+.header-toolbar .status-chip {
+    padding: 5px 11px;
+    font-size: 0.72rem;
+    gap: 6px;
+}
+
+.header-toolbar .pulse {
+    width: 6px;
+    height: 6px;
+}
+
+.header-toolbar .scope-select {
+    padding: 7px 30px 7px 11px;
+    font-size: 0.75rem;
+    min-width: 0;
+    max-width: min(210px, 42vw);
+    border-radius: var(--radius-sm);
+    background-position: right 10px center;
+}
+
+.header-toolbar .btn-scan {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    gap: 6px;
+}
+
+.header-toolbar .btn-icon svg {
+    width: 16px;
+    height: 16px;
+    display: block;
 }
 
 /* Only in DOM for admins; hidden for everyone else (see /api/me is_admin). */
 .auth-admin-pill {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    padding: 7px 12px;
+    padding: 6px 11px;
     border-radius: 999px;
     background: rgba(34, 211, 238, 0.1);
     border: 1px solid rgba(34, 211, 238, 0.35);
@@ -260,7 +288,7 @@ body {
 }
 
 .auth-signout {
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     font-weight: 600;
     color: var(--text-dim);
     text-decoration: none;
@@ -1066,36 +1094,28 @@ body {
         align-items: stretch;
     }
 
-    .header-actions {
+    .header-aside {
+        align-items: stretch;
+    }
+
+    .header-user-row {
+        justify-content: flex-start;
+    }
+
+    .header-toolbar {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .auth-strip {
+    .header-toolbar .scope-select {
+        min-width: 100%;
         max-width: 100%;
-        flex-wrap: wrap;
-        border-radius: var(--radius-md);
-    }
-
-    .auth-strip__divider {
-        display: none;
-    }
-
-    .auth-strip__actions {
-        width: 100%;
-        justify-content: space-between;
-        padding: 8px 10px 6px;
-        border-top: 1px solid var(--border);
     }
 
     .control-group {
         flex-direction: column;
         align-items: stretch;
         flex-wrap: wrap;
-    }
-
-    .scope-select {
-        min-width: 100%;
     }
 
     .btn-scan {
