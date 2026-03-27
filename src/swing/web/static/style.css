@@ -177,38 +177,99 @@ body {
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     flex-wrap: wrap;
+    justify-content: flex-end;
+    flex: 1;
+    min-width: 0;
 }
 
 .auth-strip {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    padding: 6px 12px;
+    flex-wrap: nowrap;
+    max-width: min(100%, 420px);
+    padding: 3px 3px 3px 5px;
     background: var(--surface-1);
     border: 1px solid var(--border);
     border-radius: 999px;
-    font-size: 0.78rem;
-    color: var(--text-secondary);
+    font-size: 0.8125rem;
+}
+
+.auth-strip__user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding: 4px 6px 4px 4px;
 }
 
 .auth-strip .auth-pic {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--border-strong);
 }
 
-.auth-strip .auth-link {
+.auth-strip__name {
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+}
+
+.auth-strip__divider {
+    width: 1px;
+    height: 26px;
+    background: var(--border-strong);
+    flex-shrink: 0;
+    opacity: 0.85;
+}
+
+.auth-strip__actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 12px 0 4px;
+    flex-shrink: 0;
+}
+
+/* Only in DOM for admins; hidden for everyone else (see /api/me is_admin). */
+.auth-admin-pill {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(34, 211, 238, 0.1);
+    border: 1px solid rgba(34, 211, 238, 0.35);
     color: var(--accent);
     text-decoration: none;
-    font-weight: 600;
+    white-space: nowrap;
+    transition: background var(--transition), border-color var(--transition);
 }
 
-.auth-strip .auth-link:hover {
-    text-decoration: underline;
+.auth-admin-pill:hover {
+    background: rgba(34, 211, 238, 0.18);
+    border-color: rgba(34, 211, 238, 0.55);
+}
+
+.auth-signout {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color var(--transition);
+}
+
+.auth-signout:hover {
+    color: var(--text-secondary);
 }
 
 .status-chip {
@@ -247,7 +308,8 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
 }
 
 .btn-scan {
@@ -1009,9 +1071,27 @@ body {
         align-items: stretch;
     }
 
+    .auth-strip {
+        max-width: 100%;
+        flex-wrap: wrap;
+        border-radius: var(--radius-md);
+    }
+
+    .auth-strip__divider {
+        display: none;
+    }
+
+    .auth-strip__actions {
+        width: 100%;
+        justify-content: space-between;
+        padding: 8px 10px 6px;
+        border-top: 1px solid var(--border);
+    }
+
     .control-group {
         flex-direction: column;
         align-items: stretch;
+        flex-wrap: wrap;
     }
 
     .scope-select {

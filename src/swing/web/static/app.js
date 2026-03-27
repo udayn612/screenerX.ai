@@ -48,7 +48,8 @@ async function initAuthBar() {
         }
         const label = document.getElementById("authEmail");
         if (label) label.textContent = d.name || d.email || "";
-        if (d.is_admin) document.getElementById("adminLink").hidden = false;
+        const adminEl = document.getElementById("adminLink");
+        if (adminEl) adminEl.hidden = !d.is_admin;
     } catch {
         /* ignore */
     }

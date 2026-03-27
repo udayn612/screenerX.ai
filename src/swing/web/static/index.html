@@ -50,12 +50,18 @@
                             <span class="pulse"></span>
                             <span id="statusText">Ready</span>
                         </div>
+                        <!-- Admin panel link: only shown for emails in ADMIN_EMAILS (server sets is_admin). -->
                         <div class="auth-strip" id="authStrip" hidden>
-                            <img id="authPic" class="auth-pic" alt="" width="26" height="26" hidden
-                                referrerpolicy="no-referrer">
-                            <span id="authEmail" class="auth-email"></span>
-                            <a href="/admin" id="adminLink" class="auth-link" hidden>Admin</a>
-                            <a href="/auth/logout" class="auth-link">Sign out</a>
+                            <div class="auth-strip__user">
+                                <img id="authPic" class="auth-pic" alt="" width="28" height="28" hidden
+                                    referrerpolicy="no-referrer">
+                                <span id="authEmail" class="auth-strip__name"></span>
+                            </div>
+                            <span class="auth-strip__divider" aria-hidden="true"></span>
+                            <div class="auth-strip__actions">
+                                <a href="/admin" id="adminLink" class="auth-admin-pill" hidden>Admin panel</a>
+                                <a href="/auth/logout" class="auth-signout">Sign out</a>
+                            </div>
                         </div>
                         <div class="control-group">
                             <label class="visually-hidden" for="scanScope">Market</label>
