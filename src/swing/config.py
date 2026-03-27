@@ -70,7 +70,12 @@ WEB_HOST = "0.0.0.0"
 _port = os.environ.get("PORT") or os.environ.get("WEB_PORT")
 WEB_PORT = int(_port) if _port else 8000
 # OHLCV + web /api/scan result cache: max age before refetch (seconds).
-CACHE_TTL_SECONDS = 300
+# After this, the next scan refetches prices and recomputes filters. Override with env CACHE_TTL_SECONDS.
+_cache_ttl_raw = os.environ.get("CACHE_TTL_SECONDS", "600")
+try:
+    CACHE_TTL_SECONDS = max(60, int(_cache_ttl_raw))
+except ValueError:
+    CACHE_TTL_SECONDS = 600
 # Per-IP max /api/scan requests per rolling 60s window (0 = disabled). Reduces abuse stampedes.
 SCAN_RATE_LIMIT_PER_MINUTE = 12
 
