@@ -42,9 +42,26 @@
                 Continue with Google
             </a>
             <p class="dev-note" id="noAuthNote" hidden>Sign-in is not configured on this server.</p>
+            <p class="dev-note" id="errNote" hidden style="color:var(--danger, #fb7185)"></p>
         </div>
     </div>
     <script>
+        (function () {
+            const params = new URLSearchParams(location.search);
+            const err = params.get("error");
+            const msgs = {
+                redirect: "Sign-in could not start. Check server logs, PUBLIC_BASE_URL, and that the container can reach Google (HTTPS).",
+                oauth: "Google sign-in failed or was cancelled.",
+                token: "No access token from Google.",
+                profile: "Could not load your Google profile.",
+                unverified: "Verify your Google account email first.",
+            };
+            if (err && msgs[err]) {
+                const el = document.getElementById("errNote");
+                el.textContent = msgs[err];
+                el.hidden = false;
+            }
+        })();
         fetch("/api/me", { credentials: "include" }).then((r) => r.json()).then((d) => {
             if (d.authenticated) window.location.href = "/";
             if (d.auth_configured === false) {

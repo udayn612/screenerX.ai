@@ -212,7 +212,11 @@ async def google_login(request: Request):
     if not oauth_google:
         return RedirectResponse("/")
     uri = oauth_callback_url(request)
-    return await oauth_google.authorize_redirect(request, uri)
+    try:
+        return await oauth_google.authorize_redirect(request, uri)
+    except Exception:
+        log.exception("Google OAuth authorize_redirect failed (check GOOGLE_* env, PUBLIC_BASE_URL, outbound HTTPS to Google)")
+        return RedirectResponse("/login?error=redirect", status_code=302)
 
 
 @app.get("/auth/google/callback", name="google_auth_callback")
@@ -406,4 +410,11 @@ def start_server():
     from swing.config import WEB_HOST, WEB_PORT
 
     print(f"\n🌐 Dashboard starting at http://localhost:{WEB_PORT}\n")
-    uvicorn.run(app, host=WEB_HOST, port=WEB_PORT, log_level="info")
+    uvicorn.run(
+        app,
+        host=WEB_HOST,
+        port=WEB_PORT,
+        log_level="info",
+        proxy_headers=True,
+        forwarded_allow_ips="*",
+    )
