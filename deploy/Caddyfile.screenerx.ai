@@ -1,0 +1,19 @@
+# HTTPS for screenerx.ai on your Hostinger VPS (Caddy on the host).
+#
+# Before reloading Caddy:
+#   1. DNS A record: @ → your VPS IPv4 (in hPanel: Domains → screenerx.ai → DNS)
+#   2. DNS A record: www → same VPS IPv4
+#   3. docker compose up (app on 127.0.0.1:8000)
+#   4. sudo cp deploy/Caddyfile.screenerx.ai /etc/caddy/Caddyfile
+#   5. sudo systemctl reload caddy
+#
+# Health: https://screenerx.ai/api/health
+
+www.screenerx.ai {
+	redir https://screenerx.ai{uri}
+}
+
+screenerx.ai {
+	encode gzip
+	reverse_proxy 127.0.0.1:8000
+}

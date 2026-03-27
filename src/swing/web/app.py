@@ -5,18 +5,28 @@ from __future__ import annotations
 import asyncio
 import time
 from collections import defaultdict
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+import httpx
+from fastapi import Depends, FastAPI, Request
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 
 from swing.analysis.indicators import compute_indicators
 from swing.analysis.levels import compute_levels
 from swing.analysis.scorer import compute_score, rank_candidates
 from swing.analysis.signals import detect_signals
-from swing.config import MIN_PRICE, MIN_PRICE_US, SCAN_RATE_LIMIT_PER_MINUTE, WARMUP_DAYS
+from swing.config import (
+    MIN_PRICE,
+    MIN_PRICE_US,
+    SCAN_RATE_LIMIT_PER_MINUTE,
+    SESSION_COOKIE_SECURE,
+    SESSION_SECRET,
+    WARMUP_DAYS,
+)
 from swing.data.cache import (
     get_web_scan_cache,
     max_stocks_cache_key,
@@ -31,10 +41,40 @@ from swing.data.nifty_indices import (
 )
 from swing.data.us_stocks import get_dow30_stocks, get_nasdaq100_stocks, get_sp500_stocks
 from swing.utils.logger import get_logger
+from swing.web.security import (
+    SESSION_USER_KEY,
+    auth_enabled,
+    create_oauth,
+    init_auth_db,
+    is_admin_session,
+    list_users_for_admin,
+    oauth_callback_url,
+    record_google_login,
+    require_admin_api,
+    require_api_user,
+)
 
 log = get_logger(__name__)
 
-app = FastAPI(title="ScreenerX.ai", version="0.1.0")
+oauth_google = create_oauth()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_auth_db()
+    yield
+
+
+app = FastAPI(title="ScreenerX.ai", version="0.1.0", lifespan=lifespan)
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=SESSION_SECRET,
+    session_cookie="sx_session",
+    max_age=14 * 24 * 3600,
+    same_site="lax",
+    https_only=SESSION_COOKIE_SECURE,
+)
 
 STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
@@ -42,6 +82,10 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 _scan_locks: dict[str, asyncio.Lock] = {}
 _locks_init_lock = asyncio.Lock()
 _rate_log: dict[str, list[float]] = defaultdict(list)
+
+
+def _session_dep(request: Request) -> dict:
+    return require_api_user(request)
 
 
 async def _scan_lock(cache_key: str) -> asyncio.Lock:
@@ -163,15 +207,125 @@ def _run_scan_sync(market: str, max_stocks: int | None) -> dict:
     }
 
 
+@app.get("/auth/google/login")
+async def google_login(request: Request):
+    if not oauth_google:
+        return RedirectResponse("/")
+    uri = oauth_callback_url(request)
+    return await oauth_google.authorize_redirect(request, uri)
+
+
+@app.get("/auth/google/callback", name="google_auth_callback")
+async def google_callback(request: Request):
+    if not oauth_google:
+        return RedirectResponse("/")
+    try:
+        token = await oauth_google.authorize_access_token(request)
+    except Exception as exc:
+        log.warning("Google OAuth error: %s", exc)
+        return RedirectResponse("/login?error=oauth")
+
+    access_token = token.get("access_token")
+    if not access_token:
+        return RedirectResponse("/login?error=token")
+
+    try:
+        async with httpx.AsyncClient() as client:
+            r = await client.get(
+                "https://www.googleapis.com/oauth2/v3/userinfo",
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
+            r.raise_for_status()
+            info = r.json()
+    except Exception as exc:
+        log.warning("Google userinfo error: %s", exc)
+        return RedirectResponse("/login?error=profile")
+
+    if not info.get("email_verified", True):
+        return RedirectResponse("/login?error=unverified")
+
+    try:
+        session_payload = record_google_login(info)
+    except ValueError:
+        return RedirectResponse("/login?error=profile")
+
+    request.session[SESSION_USER_KEY] = session_payload
+    return RedirectResponse("/", status_code=302)
+
+
+@app.get("/auth/logout")
+async def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse("/login")
+
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    if not auth_enabled():
+        return RedirectResponse("/")
+    if request.session.get(SESSION_USER_KEY):
+        return RedirectResponse("/")
+    html_path = STATIC_DIR / "login.html"
+    return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+
+
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_page(request: Request):
+    if not auth_enabled():
+        return RedirectResponse("/")
+    user = request.session.get(SESSION_USER_KEY)
+    if not user:
+        return RedirectResponse("/login")
+    if not is_admin_session(user):
+        return HTMLResponse("Forbidden", status_code=403)
+    p = STATIC_DIR / "admin.html"
+    return HTMLResponse(p.read_text(encoding="utf-8"))
+
+
+@app.get("/api/me")
+async def me(request: Request):
+    if not auth_enabled():
+        return {
+            "auth_configured": False,
+            "authenticated": False,
+        }
+    user = request.session.get(SESSION_USER_KEY)
+    if not user:
+        return {
+            "auth_configured": True,
+            "authenticated": False,
+        }
+    return {
+        "auth_configured": True,
+        "authenticated": True,
+        "email": user.get("email"),
+        "name": user.get("name"),
+        "picture": user.get("picture"),
+        "is_admin": is_admin_session(user),
+    }
+
+
+@app.get("/api/admin/users")
+async def admin_users(request: Request):
+    require_admin_api(request)
+    return {"users": list_users_for_admin()}
+
+
 @app.get("/", response_class=HTMLResponse)
-async def index():
-    """Serve the dashboard."""
+async def index(request: Request):
+    if auth_enabled() and not request.session.get(SESSION_USER_KEY):
+        return RedirectResponse("/login")
     html_path = STATIC_DIR / "index.html"
     return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
 
 
 @app.get("/api/results")
-async def results(market: str = "nifty_500", max_stocks: int | None = None):
+async def results(
+    request: Request,
+    market: str = "nifty_500",
+    max_stocks: int | None = None,
+    _: dict = Depends(_session_dep),
+):
     """Return cached scan for this market/scope if still within CACHE_TTL_SECONDS."""
     ms_key = max_stocks_cache_key(max_stocks)
     cached = get_web_scan_cache(market, ms_key)
@@ -186,6 +340,7 @@ async def scan(
     market: str = "nifty_500",
     max_stocks: int | None = None,
     fresh: bool = False,
+    __user: dict = Depends(_session_dep),
 ):
     """Run the screener. Reuses the cached full-scan result if within CACHE_TTL_SECONDS unless fresh=1.
 
@@ -227,7 +382,11 @@ async def scan(
 
 
 @app.get("/api/quotes")
-async def quotes(tickers: str = ""):
+async def quotes(
+    request: Request,
+    tickers: str = "",
+    _: dict = Depends(_session_dep),
+):
     """Return current/last price for given tickers (comma-separated). Uses yfinance; not cached."""
     if not tickers or not tickers.strip():
         return JSONResponse({})

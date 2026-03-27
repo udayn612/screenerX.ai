@@ -181,6 +181,36 @@ body {
     flex-wrap: wrap;
 }
 
+.auth-strip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 6px 12px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.auth-strip .auth-pic {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.auth-strip .auth-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-strip .auth-link:hover {
+    text-decoration: underline;
+}
+
 .status-chip {
     display: inline-flex;
     align-items: center;

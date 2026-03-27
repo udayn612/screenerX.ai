@@ -1,4 +1,9 @@
 # VPS: bind to localhost so only your reverse proxy (Caddy/nginx) can reach the app.
+#
+# Google OAuth: copy .env.example → .env on the server, fill secrets, then:
+#   docker compose up -d --build
+# Compose loads variables from a file named .env in this directory (do not commit .env).
+
 services:
   web:
     build: .
@@ -7,3 +12,12 @@ services:
       - "127.0.0.1:8000:8000"
     environment:
       PORT: "8000"
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://stockscreenerx.com}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
+      # Default admins if ADMIN_EMAILS unset in .env (override in .env to change)
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-nanjuauto1000@gmail.com,udayn612@gmail.com,pushpa.m.honnatti@gmail.com,plaxmi211@gmail.com,udayn582@gmail.com}
+    volumes:
+      - ./data:/app/data

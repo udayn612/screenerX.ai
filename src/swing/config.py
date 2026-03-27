@@ -73,3 +73,24 @@ WEB_PORT = int(_port) if _port else 8000
 CACHE_TTL_SECONDS = 300
 # Per-IP max /api/scan requests per rolling 60s window (0 = disabled). Reduces abuse stampedes.
 SCAN_RATE_LIMIT_PER_MINUTE = 12
+
+# ──────────────────────────── Google OAuth / admin ─────────────
+# When GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set, /login is required for the app.
+GOOGLE_CLIENT_ID = (os.environ.get("GOOGLE_CLIENT_ID") or "").strip()
+GOOGLE_CLIENT_SECRET = (os.environ.get("GOOGLE_CLIENT_SECRET") or "").strip()
+# Strong random secret for session cookies (required in production when OAuth is on).
+SESSION_SECRET = os.environ.get("SESSION_SECRET", "change-me-in-production-use-openssl-rand-hex-32")
+# Public URL of the site (no trailing slash). Required behind reverse proxy for OAuth redirect.
+PUBLIC_BASE_URL = (os.environ.get("PUBLIC_BASE_URL") or "").rstrip("/")
+# Comma-separated admin emails (lowercase); may log in to /admin and /api/admin/users.
+_raw_admins = os.environ.get("ADMIN_EMAILS", "")
+ADMIN_EMAILS: frozenset[str] = frozenset(
+    e.strip().lower() for e in _raw_admins.split(",") if e.strip()
+)
+# Set true on HTTPS production so session cookie is Secure.
+SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+AUTH_DB_PATH = DATA_DIR / "auth_users.db"

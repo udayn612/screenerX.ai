@@ -5,6 +5,7 @@ description = "ScreenerX.ai — multi-market swing trading screener (India and U
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "authlib>=1.3.2",
     "yfinance>=0.2.36",
     "pandas>=2.2.0",
     "ta>=0.11.0",
@@ -12,6 +13,7 @@ dependencies = [
     "fastapi>=0.109.0",
     "uvicorn[standard]>=0.27.0",
     "httpx>=0.27.0",
+    "itsdangerous>=2.0.0",
     "lxml>=6.0.2",
     "html5lib>=1.1",
     "beautifulsoup4>=4.14.3",

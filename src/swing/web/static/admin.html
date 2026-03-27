@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — ScreenerX.ai</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .admin-page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+        .admin-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+        .admin-head h1 { font-size: 1.35rem; margin: 0; }
+        .admin-meta { color: var(--muted, #94a3b8); font-size: .875rem; }
+        .admin-table-wrap { overflow: auto; border: 1px solid var(--border, rgba(255,255,255,.08)); border-radius: 12px; background: var(--surface, #12101c); }
+        table.admin-users { width: 100%; border-collapse: collapse; font-size: .875rem; }
+        table.admin-users th, table.admin-users td { padding: .75rem 1rem; text-align: left; border-bottom: 1px solid var(--border, rgba(255,255,255,.06)); }
+        table.admin-users th { font-weight: 600; color: var(--muted); white-space: nowrap; }
+        table.admin-users tr:last-child td { border-bottom: none; }
+        table.admin-users img.avatar { width: 28px; height: 28px; border-radius: 8px; vertical-align: middle; margin-right: .5rem; }
+        .admin-err { color: #fb7185; padding: 1rem; }
+        .link-back { color: var(--accent-cyan, #22d3ee); text-decoration: none; font-weight: 500; }
+        .link-back:hover { text-decoration: underline; }
+    </style>
+</head>
+
+<body>
+    <div class="ambient" aria-hidden="true"></div>
+    <div class="admin-page">
+        <div class="admin-head">
+            <h1>Who has logged in</h1>
+            <div>
+                <a class="link-back" href="/">← Dashboard</a>
+            </div>
+        </div>
+        <p class="admin-meta" id="adminMeta">Google sign-ins recorded on this server.</p>
+        <div id="adminErr" class="admin-err" hidden></div>
+        <div class="admin-table-wrap">
+            <table class="admin-users" id="usersTable" hidden>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>First login</th>
+                        <th>Last login</th>
+                        <th>Logins</th>
+                    </tr>
+                </thead>
+                <tbody id="usersBody"></tbody>
+            </table>
+        </div>
+    </div>
+    <script src="/static/admin.js"></script>
+</body>
+
+</html>

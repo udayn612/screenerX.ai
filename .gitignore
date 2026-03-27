@@ -15,6 +15,7 @@ venv/
 
 # Data & cache (generated at runtime)
 data/cache.db
+data/auth_users.db
 data/nifty500_fallback.csv
 
 # IDE

@@ -12,15 +12,54 @@ function formatTime(utcIso) {
     return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true });
 }
 
+// ── Fetch with session cookie; redirect if Google auth required ──
+function authFetch(url, options = {}) {
+    return fetch(url, { credentials: "include", ...options }).then((response) => {
+        if (response.status === 401) {
+            window.location.href = "/login";
+            return Promise.reject(new Error("Unauthorized"));
+        }
+        return response;
+    });
+}
+
 // ── Auto-load cached results on page load ──
-document.addEventListener("DOMContentLoaded", loadCachedResults);
+document.addEventListener("DOMContentLoaded", () => {
+    loadCachedResults();
+    initAuthBar();
+});
+
+async function initAuthBar() {
+    const strip = document.getElementById("authStrip");
+    if (!strip) return;
+    try {
+        const r = await fetch("/api/me", { credentials: "include" });
+        const d = await r.json();
+        if (!d.auth_configured) return;
+        if (!d.authenticated) {
+            window.location.href = "/login";
+            return;
+        }
+        strip.hidden = false;
+        if (d.picture) {
+            const img = document.getElementById("authPic");
+            img.src = d.picture;
+            img.hidden = false;
+        }
+        const label = document.getElementById("authEmail");
+        if (label) label.textContent = d.name || d.email || "";
+        if (d.is_admin) document.getElementById("adminLink").hidden = false;
+    } catch {
+        /* ignore */
+    }
+}
 
 async function loadCachedResults() {
     const scopeSelect = document.getElementById("scanScope");
     const market = scopeSelect.value;
 
     try {
-        const response = await fetch(`/api/results?market=${market}`);
+        const response = await authFetch(`/api/results?market=${market}`);
         if (!response.ok) return;
         const data = await response.json();
 
@@ -59,7 +98,7 @@ async function startScan(ev) {
 
     try {
         const scanUrl = `/api/scan?market=${market}${forceFresh ? "&fresh=true" : ""}`;
-        const response = await fetch(scanUrl);
+        const response = await authFetch(scanUrl);
         if (!response.ok) {
             let msg = `HTTP ${response.status}`;
             try {
@@ -104,7 +143,7 @@ async function refreshCurrentPrices() {
     const tickers = allCandidates.map((c) => c.ticker || c.symbol).filter(Boolean);
     if (tickers.length === 0) return;
     try {
-        const response = await fetch("/api/quotes?tickers=" + encodeURIComponent(tickers.join(",")));
+        const response = await authFetch("/api/quotes?tickers=" + encodeURIComponent(tickers.join(",")));
         if (!response.ok) return;
         const prices = await response.json();
         document.querySelectorAll("tr[data-ticker]").forEach((row) => {
