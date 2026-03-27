@@ -213,7 +213,8 @@ async def google_login(request: Request):
         return RedirectResponse("/")
     uri = oauth_callback_url(request)
     try:
-        return await oauth_google.authorize_redirect(request, uri)
+        # authorize_redirect lives on the named client (google), not on the OAuth registry.
+        return await oauth_google.google.authorize_redirect(request, uri)
     except Exception:
         log.exception("Google OAuth authorize_redirect failed (check GOOGLE_* env, PUBLIC_BASE_URL, outbound HTTPS to Google)")
         return RedirectResponse("/login?error=redirect", status_code=302)
@@ -224,7 +225,7 @@ async def google_callback(request: Request):
     if not oauth_google:
         return RedirectResponse("/")
     try:
-        token = await oauth_google.authorize_access_token(request)
+        token = await oauth_google.google.authorize_access_token(request)
     except Exception as exc:
         log.warning("Google OAuth error: %s", exc)
         return RedirectResponse("/login?error=oauth")
