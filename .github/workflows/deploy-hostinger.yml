@@ -1,0 +1,33 @@
+# Deploys this repo to Hostinger VPS Docker Manager on each push to `main`.
+# Setup: https://github.com/marketplace/actions/deploy-on-hostinger-vps
+#
+# GitHub → Settings → Secrets and variables → Actions:
+#   Secret:  HOSTINGER_API_KEY   (hPanel → https://hpanel.hostinger.com/profile/api)
+#   Variable: HOSTINGER_VM_ID    (e.g. srv123456 → 123456, or VPS overview URL /vps/123456/...)
+#
+# Private repo: add a deploy key per Hostinger docs; pass if the action adds support later.
+
+name: Deploy to Hostinger VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: hostinger-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to Hostinger VPS
+        uses: hostinger/deploy-on-vps@v2
+        with:
+          api-key: ${{ secrets.HOSTINGER_API_KEY }}
+          virtual-machine: ${{ vars.HOSTINGER_VM_ID }}
+          project-name: screenerx-ai

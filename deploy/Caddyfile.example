@@ -1,0 +1,8 @@
+# Copy to /etc/caddy/Caddyfile (or merge into your site block).
+# Prerequisites: docker compose running (app listens on 127.0.0.1:8000).
+# Caddy obtains HTTPS certificates automatically for public DNS names.
+
+your-domain.example {
+	encode gzip
+	reverse_proxy 127.0.0.1:8000
+}

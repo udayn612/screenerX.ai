@@ -1,0 +1,9 @@
+# VPS: bind to localhost so only your reverse proxy (Caddy/nginx) can reach the app.
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      PORT: "8000"

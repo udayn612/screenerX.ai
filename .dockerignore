@@ -1,0 +1,9 @@
+.venv
+.git
+.gitignore
+__pycache__
+*.py[cod]
+.pytest_cache
+.cursor
+data/cache.db
+.DS_Store
