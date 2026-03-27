@@ -7,6 +7,8 @@ ScreenerX.ai scans index universes with multi-factor technical analysis: signals
 ![Python 3.12+](https://img.shields.io/badge/Python-3.12+-blue?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688?logo=fastapi&logoColor=white)
 
+**Repository:** [github.com/udayn612/screenerX.ai](https://github.com/udayn612/screenerX.ai)
+
 ---
 
 ## Features
