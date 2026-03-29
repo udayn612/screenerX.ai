@@ -170,10 +170,10 @@ function displayData(data) {
     currentCurrency = data.currency || "₹";
 
     // Update table headers with currency
-    document.querySelector(".col-price").textContent = `Current price (${currentCurrency}) ↕`;
-    document.querySelector(".col-entry").textContent = `Reference price (${currentCurrency})`;
-    document.querySelector(".col-sl").textContent = `Downside level (${currentCurrency})`;
-    document.querySelector(".col-target").textContent = `Upside potential (${currentCurrency})`;
+    document.querySelector(".col-price").textContent = `CURRENT PRICE (${currentCurrency}) ↕`;
+    document.querySelector(".col-entry").textContent = `REFERENCE PRICE (${currentCurrency})`;
+    document.querySelector(".col-sl").textContent = `DOWNSIDE LEVEL (${currentCurrency})`;
+    document.querySelector(".col-target").textContent = `UPSIDE POTENTIAL (${currentCurrency})`;
 
     // Update stats
     document.getElementById("statCandidates").textContent = data.count || 0;

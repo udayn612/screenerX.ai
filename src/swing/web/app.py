@@ -134,6 +134,9 @@ app.add_middleware(
 )
 
 STATIC_DIR = Path(__file__).parent / "static"
+# Avoid stale dashboard HTML in browsers / proxies after deploys.
+_HTML_NO_CACHE = {"Cache-Control": "no-store, max-age=0, must-revalidate"}
+
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 _scan_locks: dict[str, asyncio.Lock] = {}
@@ -328,7 +331,10 @@ async def login_page(request: Request):
     if request.session.get(SESSION_USER_KEY):
         return RedirectResponse("/")
     html_path = STATIC_DIR / "login.html"
-    return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+    return HTMLResponse(
+        content=html_path.read_text(encoding="utf-8"),
+        headers=_HTML_NO_CACHE,
+    )
 
 
 @app.get("/admin", response_class=HTMLResponse)
@@ -341,7 +347,7 @@ async def admin_page(request: Request):
     if not is_admin_session(user):
         return HTMLResponse("Forbidden", status_code=403)
     p = STATIC_DIR / "admin.html"
-    return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse(p.read_text(encoding="utf-8"), headers=_HTML_NO_CACHE)
 
 
 @app.get("/api/me")
@@ -378,7 +384,10 @@ async def index(request: Request):
     if auth_enabled() and not request.session.get(SESSION_USER_KEY):
         return RedirectResponse("/login")
     html_path = STATIC_DIR / "index.html"
-    return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+    return HTMLResponse(
+        content=html_path.read_text(encoding="utf-8"),
+        headers=_HTML_NO_CACHE,
+    )
 
 
 @app.get("/api/results")
