@@ -139,7 +139,7 @@ async function startScan(ev) {
     }
 }
 
-// ── Refresh current prices (yfinance live quote; updates CMP column) ──
+// ── Refresh current prices (yfinance live quote; updates current price column) ──
 async function refreshCurrentPrices() {
     const tickers = allCandidates.map((c) => c.ticker || c.symbol).filter(Boolean);
     if (tickers.length === 0) return;
@@ -170,10 +170,10 @@ function displayData(data) {
     currentCurrency = data.currency || "₹";
 
     // Update table headers with currency
-    document.querySelector(".col-price").textContent = `CMP (${currentCurrency}) ↕`;
-    document.querySelector(".col-entry").textContent = `Entry (${currentCurrency})`;
-    document.querySelector(".col-sl").textContent = `Stop Loss (${currentCurrency})`;
-    document.querySelector(".col-target").textContent = `Target (${currentCurrency})`;
+    document.querySelector(".col-price").textContent = `Current price (${currentCurrency}) ↕`;
+    document.querySelector(".col-entry").textContent = `Reference price (${currentCurrency})`;
+    document.querySelector(".col-sl").textContent = `Downside level (${currentCurrency})`;
+    document.querySelector(".col-target").textContent = `Upside potential (${currentCurrency})`;
 
     // Update stats
     document.getElementById("statCandidates").textContent = data.count || 0;
@@ -193,7 +193,7 @@ function displayData(data) {
 
     // Render
     renderResults(allCandidates);
-    // Fetch current prices and update CMP column (runs in background)
+    // Fetch current prices and update current price column (runs in background)
     refreshCurrentPrices();
 
     statsBar.style.display = "grid";
@@ -323,7 +323,7 @@ function toggleBreakdown(symbol) {
         <td colspan="13">
             <div class="breakdown-panel">
                 <div class="breakdown-header">
-                    🧠 Score Breakdown — ${symbol} — ${candidate.score} / 100
+                    🧠 Model score breakdown — ${symbol} — ${candidate.score} / 100
                 </div>
                 <div class="breakdown-factors">
                     ${factorsHTML}

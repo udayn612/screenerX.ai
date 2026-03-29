@@ -815,13 +815,13 @@ body {
 .col-company { min-width: 150px; }
 .col-industry { min-width: 110px; }
 .col-chart { min-width: 112px; }
-.col-score { width: 76px; text-align: center; }
+.col-score { min-width: 92px; text-align: center; }
 .col-price,
 .col-entry,
 .col-sl,
-.col-target { width: 96px; text-align: right; font-variant-numeric: tabular-nums; }
-.col-rr { width: 56px; text-align: center; }
-.col-signals { min-width: 190px; }
+.col-target { min-width: 108px; text-align: right; font-variant-numeric: tabular-nums; }
+.col-rr { min-width: 118px; text-align: center; }
+.col-signals { min-width: 200px; }
 .col-rsi { width: 56px; text-align: center; }
 
 .cell-symbol {

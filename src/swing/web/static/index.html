@@ -105,7 +105,7 @@
                     <span class="stat-value stat-value--muted" id="statFiltered">0</span>
                 </article>
                 <article class="stat-card stat-card--score">
-                    <span class="stat-label">Avg score</span>
+                    <span class="stat-label">Avg model score</span>
                     <span class="stat-value" id="statAvgScore">—</span>
                 </article>
             </section>
@@ -150,10 +150,10 @@
                             <option value="">All industries</option>
                         </select>
                         <select class="filter-select" id="sortBy" onchange="sortResults()">
-                            <option value="score">Sort: Score</option>
-                            <option value="risk_reward">Sort: R:R</option>
-                            <option value="signal_count">Sort: Signals</option>
-                            <option value="close">Sort: Price</option>
+                            <option value="score">Sort: Model score</option>
+                            <option value="risk_reward">Sort: Risk–reward</option>
+                            <option value="signal_count">Sort: Technical indicators</option>
+                            <option value="close">Sort: Current price</option>
                         </select>
                     </div>
                 </div>
@@ -167,14 +167,14 @@
                                     <th class="col-symbol" onclick="toggleSort('symbol')">Symbol ↕</th>
                                     <th class="col-company">Company</th>
                                     <th class="col-industry">Industry</th>
-                                    <th class="col-chart">30d</th>
-                                    <th class="col-score" onclick="toggleSort('score')">Score ↕</th>
-                                    <th class="col-price" onclick="toggleSort('close')">CMP ↕</th>
-                                    <th class="col-entry">Entry</th>
-                                    <th class="col-sl">Stop</th>
-                                    <th class="col-target">Target</th>
-                                    <th class="col-rr" onclick="toggleSort('risk_reward')">R:R ↕</th>
-                                    <th class="col-signals">Signals</th>
+                                    <th class="col-chart">30D trend</th>
+                                    <th class="col-score" onclick="toggleSort('score')">Model score ↕</th>
+                                    <th class="col-price" onclick="toggleSort('close')">Current price (₹) ↕</th>
+                                    <th class="col-entry">Reference price (₹)</th>
+                                    <th class="col-sl">Downside level (₹)</th>
+                                    <th class="col-target">Upside potential (₹)</th>
+                                    <th class="col-rr" onclick="toggleSort('risk_reward')">Risk–reward indicator ↕</th>
+                                    <th class="col-signals">Technical indicators</th>
                                     <th class="col-rsi">RSI</th>
                                 </tr>
                             </thead>

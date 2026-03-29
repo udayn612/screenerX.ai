@@ -79,6 +79,21 @@ except ValueError:
 # Per-IP max /api/scan requests per rolling 60s window (0 = disabled). Reduces abuse stampedes.
 SCAN_RATE_LIMIT_PER_MINUTE = 12
 
+# Optional background refresh: when cache is missing or older than CACHE_TTL_SECONDS, run the same
+# scan as /api/scan (no HTTP) so /api/results is warm. Comma-separated market ids, e.g. nifty_500.
+# Empty = disabled (same behavior as before).
+_raw_bg_markets = os.environ.get("BACKGROUND_SCAN_MARKETS", "")
+BACKGROUND_SCAN_MARKETS: tuple[str, ...] = tuple(
+    m.strip() for m in _raw_bg_markets.split(",") if m.strip()
+)
+_bg_interval_raw = os.environ.get("BACKGROUND_SCAN_INTERVAL_SECONDS", "120")
+try:
+    BACKGROUND_SCAN_INTERVAL_SECONDS = max(30, int(_bg_interval_raw))
+except ValueError:
+    BACKGROUND_SCAN_INTERVAL_SECONDS = 120
+# Seconds after process start before the first background refresh check.
+BACKGROUND_SCAN_START_DELAY_SECONDS = 20
+
 # ──────────────────────────── Google OAuth / admin ─────────────
 # When GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set, /login is required for the app.
 GOOGLE_CLIENT_ID = (os.environ.get("GOOGLE_CLIENT_ID") or "").strip()

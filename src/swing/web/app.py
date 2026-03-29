@@ -20,6 +20,9 @@ from swing.analysis.levels import compute_levels
 from swing.analysis.scorer import compute_score, rank_candidates
 from swing.analysis.signals import detect_signals
 from swing.config import (
+    BACKGROUND_SCAN_INTERVAL_SECONDS,
+    BACKGROUND_SCAN_MARKETS,
+    BACKGROUND_SCAN_START_DELAY_SECONDS,
     MIN_PRICE,
     MIN_PRICE_US,
     SCAN_RATE_LIMIT_PER_MINUTE,
@@ -58,11 +61,65 @@ log = get_logger(__name__)
 
 oauth_google = create_oauth()
 
+_BG_VALID_MARKETS = frozenset(
+    {
+        "nifty_50",
+        "nifty_100",
+        "nifty_200",
+        "nifty_500",
+        "dow_30",
+        "nasdaq_100",
+        "sp_500",
+    }
+)
+
+
+async def _background_scan_refresh_loop() -> None:
+    """Refresh SQLite scan cache when missing or past TTL; shares locks with /api/scan."""
+    await asyncio.sleep(BACKGROUND_SCAN_START_DELAY_SECONDS)
+    while True:
+        for market in BACKGROUND_SCAN_MARKETS:
+            if market not in _BG_VALID_MARKETS:
+                log.warning("BACKGROUND_SCAN_MARKETS: unknown market %r skipped", market)
+                continue
+            ms_key = max_stocks_cache_key(None)
+            if get_web_scan_cache(market, ms_key) is not None:
+                continue
+            lock_key = f"{market}:{ms_key}"
+            lock = await _scan_lock(lock_key)
+            async with lock:
+                if get_web_scan_cache(market, ms_key) is not None:
+                    continue
+                try:
+                    data = await asyncio.to_thread(_run_scan_sync, market, None)
+                    save_web_scan_cache(market, ms_key, data, data["scanned_at"])
+                    log.info("Background scan cached %s (%s candidates)", market, data.get("count"))
+                except Exception as exc:
+                    log.warning("Background scan failed for %s: %s", market, exc)
+        await asyncio.sleep(BACKGROUND_SCAN_INTERVAL_SECONDS)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_auth_db()
-    yield
+    tasks: list[asyncio.Task[None]] = []
+    if BACKGROUND_SCAN_MARKETS:
+        log.info(
+            "Background scan refresh enabled for: %s (every %ss)",
+            ", ".join(BACKGROUND_SCAN_MARKETS),
+            BACKGROUND_SCAN_INTERVAL_SECONDS,
+        )
+        tasks.append(asyncio.create_task(_background_scan_refresh_loop()))
+    try:
+        yield
+    finally:
+        for t in tasks:
+            t.cancel()
+        for t in tasks:
+            try:
+                await t
+            except asyncio.CancelledError:
+                pass
 
 
 app = FastAPI(title="ScreenerX.ai", version="0.1.0", lifespan=lifespan)
